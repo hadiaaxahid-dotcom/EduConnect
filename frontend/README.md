@@ -6,7 +6,7 @@ This is a dependency-free frontend for the EduConnect Express API.
 
 1. Start the backend from the `backend` folder with `npm start`.
 2. Open `http://localhost:5000` in a browser. The backend serves the frontend there; you can also open `frontend/index.html` directly.
-3. Sign in or create a student account. The frontend connects to `http://localhost:5000/api` by default; change the API URL in **Settings** if needed.
+3. Sign in or create a student account. The frontend connects to `https://educonnect123456789.vercel.app/api` by default; change the API URL in **Settings** if needed.
 
 After sign-in, users are sent to `/admin/dashboard`, `/teacher/dashboard`, or `/student/dashboard` according to their lowercase role. Use the theme button on the sign-in page or workspace to switch between light and dark mode; the choice is saved in the browser. In-app notifications refresh every 15 seconds and are created for new announcements, enrolled-course assignments, and published results.
 
