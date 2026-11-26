@@ -4,6 +4,7 @@
   const USER_KEY = "educonnect.user";
   const THEME_KEY = "educonnect.theme";
   const DEFAULT_API = "https://educonnect123456789.vercel.app/api";
+  const PREVIOUS_DEFAULT_API = "http://localhost:5000/api";
   const app = document.getElementById("app");
   const modal = document.getElementById("modal");
   const state = {
@@ -79,7 +80,17 @@
   }
 
   function apiBase() {
-    return (localStorage.getItem(API_KEY) || DEFAULT_API).replace(/\/+$/, "");
+    const savedApi = (localStorage.getItem(API_KEY) || "").replace(/\/+$/, "");
+    const hostname = window.location.hostname;
+    const localApi = hostname === "localhost" || hostname === "127.0.0.1"
+      ? `${window.location.origin}/api`
+      : "";
+    if (savedApi === PREVIOUS_DEFAULT_API) {
+      if (localApi) return localApi;
+      localStorage.setItem(API_KEY, DEFAULT_API);
+      return DEFAULT_API;
+    }
+    return savedApi || localApi || DEFAULT_API;
   }
 
   async function request(path, options = {}) {
@@ -665,7 +676,7 @@
 
   function settingsPage() {
     return `${pageHeading("Settings", "Configure how EduConnect connects to your backend.")}
-      <section class="panel settings-card"><div class="eyebrow">Connection</div><h2 style="font:700 15px Manrope;margin:0 0 7px">Backend API</h2><p>By default, EduConnect connects to your backend at <strong>https://educonnect123456789.vercel.app/api</strong>. Change this if your API runs at a different address.</p><form id="api-settings"><label for="api-url">API base URL</label><input id="api-url" type="url" value="${esc(apiBase())}" placeholder="https://educonnect123456789.vercel.app/api" required><p>Use the address ending in <code>/api</code>. Your current session will be retained.</p><button class="primary-button" type="submit">Save connection</button></form></section>`;
+      <section class="panel settings-card"><div class="eyebrow">Connection</div><h2 style="font:700 15px Manrope;margin:0 0 7px">Backend API</h2><p>EduConnect connects to the API at <strong>${esc(apiBase())}</strong>. Change this if your API runs at a different address.</p><form id="api-settings"><label for="api-url">API base URL</label><input id="api-url" type="url" value="${esc(apiBase())}" placeholder="https://educonnect123456789.vercel.app/api" required><p>Use the address ending in <code>/api</code>. Your current session will be retained.</p><button class="primary-button" type="submit">Save connection</button></form></section>`;
   }
 
   function profilePage() {

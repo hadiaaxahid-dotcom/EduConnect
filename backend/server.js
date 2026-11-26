@@ -18,6 +18,27 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'EduConnect API' });
 });
 
+// Ensure API requests wait for MongoDB before reaching database-backed routes.
+let dbPromise = null;
+const ensureDB = () => {
+  if (!dbPromise) {
+    dbPromise = connectDB().catch((err) => {
+      dbPromise = null;
+      throw err;
+    });
+  }
+  return dbPromise;
+};
+
+app.use('/api', async (req, res, next) => {
+  try {
+    await ensureDB();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
@@ -37,27 +58,6 @@ app.get(/^\/(admin|teacher|student)\/dashboard\/?$/, (req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.statusCode || 500).json({ message: err.message || 'Server error' });
-});
-
-// Ensure DB connects once across serverless invocations and local runs
-let dbPromise = null;
-const ensureDB = () => {
-  if (!dbPromise) {
-    dbPromise = connectDB().catch((err) => {
-      dbPromise = null;
-      throw err;
-    });
-  }
-  return dbPromise;
-};
-
-app.use(async (req, res, next) => {
-  try {
-    await ensureDB();
-    next();
-  } catch (err) {
-    next(err);
-  }
 });
 
 const PORT = process.env.PORT || 5000;
